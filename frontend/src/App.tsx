@@ -53,17 +53,25 @@ const App = () => {
   }, [templates, customTemplate]);
 
   useEffect(() => {
-    const subscription = watch((value) => {
+    const subscription = watch((value, { name }) => {
+      // Immediately update preview when any field changes
       generatePreview({
         ...value,
-        hiringPosition: allFormValues[2] || '',
-        companyName: allFormValues[3] || '',
-        jobSource: allFormValues[4] || '',
+        to: value.to || '',
+        subject: value.subject || '',
+        hiringManager: value.hiringManager || '',
+        hiringPosition: value.hiringPosition || '',
+        companyName: value.companyName || '',
+        jobSource: value.jobSource || '',
+        template: value.template || 'default',
+        attachments: value.attachments || []
       } as EmailFormData);
+    }, {
+      immediate: true // This makes it update immediately
     });
 
     return () => subscription.unsubscribe();
-  }, [allFormValues, templates, customTemplate, generatePreview, watch]);
+  }, [watch, generatePreview]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -273,8 +281,17 @@ const App = () => {
                 <label className="block text-sm font-medium text-gray-700">Company Name</label>
                 <input
                   type="text"
-                  {...register('companyName', { required: true })}
-                  placeholder="e.g., Google, Microsoft, Amazon"
+                  {...register('companyName', { 
+                    required: true,
+                    onChange: (e) => {
+                      // Trigger immediate preview update
+                      generatePreview({
+                        ...watch(),
+                        companyName: e.target.value
+                      } as EmailFormData);
+                    }
+                  })}
+                  placeholder="e.g., Google, Microsoft"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 />
                 {errors.companyName && <span className="text-red-500 text-sm">This field is required</span>}
@@ -284,7 +301,16 @@ const App = () => {
                 <label className="block text-sm font-medium text-gray-700">Hiring Position</label>
                 <input
                   type="text"
-                  {...register('hiringPosition', { required: true })}
+                  {...register('hiringPosition', { 
+                    required: true,
+                    onChange: (e) => {
+                      // Trigger immediate preview update
+                      generatePreview({
+                        ...watch(),
+                        hiringPosition: e.target.value
+                      } as EmailFormData);
+                    }
+                  })}
                   placeholder="e.g., DevOps Engineer, Software Engineer"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 />
@@ -295,7 +321,16 @@ const App = () => {
                 <label className="block text-sm font-medium text-gray-700">Hiring Manager</label>
                 <input
                   type="text"
-                  {...register('hiringManager', { required: true })}
+                  {...register('hiringManager', { 
+                    required: true,
+                    onChange: (e) => {
+                      // Trigger immediate preview update
+                      generatePreview({
+                        ...watch(),
+                        hiringManager: e.target.value
+                      } as EmailFormData);
+                    }
+                  })}
                   placeholder="e.g., John Doe, Sarah Smith"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 />
@@ -306,7 +341,16 @@ const App = () => {
                 <label className="block text-sm font-medium text-gray-700">Where did you find the job?</label>
                 <input
                   type="text"
-                  {...register('jobSource', { required: true })}
+                  {...register('jobSource', { 
+                    required: true,
+                    onChange: (e) => {
+                      // Trigger immediate preview update
+                      generatePreview({
+                        ...watch(),
+                        jobSource: e.target.value
+                      } as EmailFormData);
+                    }
+                  })}
                   placeholder="e.g., LinkedIn, Indeed, Company Website"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 />
